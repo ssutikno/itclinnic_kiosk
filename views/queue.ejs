@@ -1,0 +1,296 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Queue</title>
+        <style>
+            body,html {
+                margin: 0;
+                padding: 0;
+            }
+            body::-webkit-scrollbar{
+                display: none;
+            }
+        </style>
+        <!-- include latest bootstrap 5 styles -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css">
+        <!-- include latest jquery -->
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+        <script src="jquery/dist/jquery.min.js"></script>
+        <script src="jquery.marquee/jquery.marquee.min.js"></script>        
+        <!-- include latest bootstrap 5 javascript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/js/bootstrap.min.js"></script>
+        <style>
+        .custom-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(172, 73, 230, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            z-index: 999;
+        }
+
+        .centered-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .btn {
+            text-transform: uppercase;
+            font-size: 3rem;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-radius: 25px;
+            width: 100%;
+        }
+        .welcome {
+            /* position on the center horizontal */
+            align-items: center;
+            width: 100vw;
+            position:absolute;
+            z-index: 1;
+            /* margin-top:5%;
+            margin-bottom: 10%; */
+            /* font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; */
+            display: block;
+            text-shadow: 5px 5px 5px gray;
+            padding-top: 200px;
+            text-align: center;
+            font-size: 80px;
+            font-weight: 600;
+            text-decoration-style: solid;
+            color: rgb(255, 255, 255, 0.6) ;
+            box-shadow: 3px;
+        }
+        video {
+            position :absolute;
+
+            left:0;
+            /* top:0; */
+            width:100vw;
+            padding: 0;
+            margin:0;
+        }
+        .row {
+            padding: 0px;
+            margin:0px;
+        }
+        .containter{
+            padding: 0px;
+            margin:0px;
+        }
+        .logo{
+            z-index: 102;
+            position:absolute;
+            top : 50px;
+            left: 50px;
+            
+        }   
+        .logo img{
+            width: 300px;
+            /* box-shadow: 5px 5px 5px white; */
+        }     
+        
+        .marquee {
+            width: 100%; 
+            /* the plugin works for responsive layouts so width is not necessary */ 
+            overflow: hidden;
+            /* border:1px solid #ccc; */
+            z-index: 100;
+            position: absolute;
+            background-color: red;
+            color: white;
+            height: 90px;
+            bottom: 0px;
+            }
+        .marquee p{
+            font-weight: bold;
+            font-size: 75px;
+            margin-top: -20px;
+        }
+        #clock {
+            position: absolute;
+            z-index: 101;
+            bottom: 0;
+            left: 0;
+            height:90px;
+            width: 260px;
+            background-color: blueviolet;
+            color: white;
+            border:0px;
+            border-right: 10px;
+            border-color: black;
+            border-style: solid;
+        }
+        #clock p{
+            font-weight: bold;
+            font-size: 75px;
+            margin-top: -20px;
+            margin-left: 20px;
+            
+        }
+        .touch_text{
+            position:absolute;
+            text-align: center;
+            width: 100%;
+            bottom:100px;
+            font-size: 80px;
+            color: rgba(255,255,255, 0.6);
+            font-weight: 800;
+            z-index: 1;
+        }
+        .blink {
+            animation: blink-animation 1s steps(5, start) infinite;
+            -webkit-animation: blink-animation 1s steps(5, start) infinite;
+        }
+
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @-webkit-keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
+        }
+        .soft-blink {
+            animation: soft-blink-animation 1s linear infinite;
+        }
+
+        @keyframes soft-blink-animation {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        </style>
+    </head>
+    <body>
+
+        <div>
+            <div class="scrolling_text marquee">
+                <p>Scrolling Text</p>
+            </div>
+            <div id="clock"><p>10:10</p></div>
+            <div class="logo">
+                <img src="public/imgs/logo.png" alt="" srcset="">
+            </div>
+            <div class="touch_text soft-blink">Touch the screen to START</div>
+            <div class="row">
+            
+            <!-- show welcome text "WELCOME to AXIOO IT CLINNIC " -->
+                <!-- <div class="welcome soft-blink">
+                    <p>Welcome to AXIOO IT CLINNIC</p>
+                    
+
+                </div> -->
+                <script>
+                    alert('Cabang : <%=config.cabang.kode%> / <%= config.cabang.kota%>')
+                </script>
+            </div>
+            <div class="row">
+            <!-- show videos from folder /public/videos one by one using ejs in circular  -->
+                <div>
+                    <video id="video" autoplay controls muted style="margin-left: 0px;padding-left: 0px;">
+                        <% for(var i=0; i<videos.length; i++) { %>
+                            <source src="<%= videos[i] %>" type="video/mp4">
+                        <% } %>
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="custom-dialog" id="customDialog">
+                <div class="centered-buttons">
+                    <% config.services.forEach(service => { %>
+                        <button class="btn btn-primary" onclick="gotoURL('<%=service.url%>')"><%= service.name %></button>
+                    
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+        <script>
+            var video = document.getElementById("video");
+            var sources = video.getElementsByTagName("source");
+            var i = 0;
+            function next() {
+                i = ++i % sources.length;
+                video.src = sources[i].src;
+                video.play();
+            }
+            video.addEventListener('ended', next, false);
+            // set the video width to screen width
+            video.width = window.innerWidth;
+            // set the height of the video to follow the video aspect ratio
+            video.height = video.width * 9 / 16;
+            // add a layer on top of video
+            var layer = document.createElement("div");
+            layer.style.position = "absolute";
+            layer.style.left = 0;
+            layer.style.top = 0;
+            layer.style.width = video.width + "px";
+            layer.style.height = video.height + "px";
+            layer.style.backgroundColor = "transparent";
+            layer.style.zIndex = 100;
+            layer.onclick = function() {
+                // show the customDialog if it is hidden, and hide when it is shown
+                if ($("#customDialog").css("display") == "none") {
+                    $("#customDialog").show();
+                    $(".welcome").hide();
+                    $(".touch_text").hide();}
+                else {
+                    $("#customDialog").hide(1000);
+                    $(".welcome").show();
+                    $(".touch_text").show(); 
+                }
+            };
+
+            document.body.appendChild(layer);
+            $('.marquee').marquee({
+                //duration in milliseconds of the marquee
+                duration: 5000,
+                //gap in pixels between the tickers
+                gap: 50,
+                //time in milliseconds before the marquee will start animating
+                delayBeforeStart: 0,
+                //'left' or 'right'
+                direction: 'left',
+                //true or false - should the marquee be duplicated to show an effect of continues flow
+                duplicated: true
+            });
+            function gotoURL(url){
+                $.get(url,function(data){
+                    alert(data);
+                    $("#customDialog").hide(1000);
+                    $(".welcome").show();
+                    $(".touch_text").show();                     
+                })
+            }
+            function printTicket(ticket){
+                var iframe = document.createElement('iframe');
+                document.body.appendChild(iframe);
+                iframe.style.display='none';
+                var doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write('');
+
+            }
+        </script>
+    </body>
+</html>

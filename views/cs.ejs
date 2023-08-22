@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Clinnic Ticketing</title>
+    <!-- Bootstrap CSS (Bootstrap 5) -->
+    <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css">
+    
+    <style>
+
+            .blinking{
+                animation:blinkingText 1.2s infinite;
+            }
+            @keyframes blinkingText{
+                0%{     color: #000;    }
+                49%{    color: #000; }
+                60%{    color: transparent; }
+                99%{    color:transparent;  }
+                100%{   color: #000;    }
+            }
+
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+<%- include('header') %>
+
+    <!-- Content Area -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 ">
+                <div class="row">
+                    <h3>Customer Service</h1>
+                    <p>CS #: <span id="user"><%=user %></span> / Cabang : <span id="cabang"><%= cabang%></span></p>
+                </div>
+                <div class="row" style="margin-bottom:20px">
+                    <div class="col navbar-text">
+                        Nomor Urut paling atas
+                    </div>                    
+                    <div class="col" id="btn_call">
+                        <button class="btn btn-primary"  onclick="btn_Call()">Panggil</button>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <table class="table table-primary">
+                        <tr class="table-dark">
+                            <th>Nomor</th>
+                            <th>Layanan</th>
+                        </tr>
+                        <!-- print list of tix printed by customer -->
+                        <%  let no_urut = 0;
+                        row.forEach(element => { 
+                            if (no_urut == 0) { %>
+                                <tr class="blinking">
+                            <% } else { %>
+                                <tr>
+                            <% } %>
+                            <td <%= ( (no_urut == 0) ? 'id=nomor_tix' : '' ) %>><%= element.tix_number %></td>
+                            <td><%= ( (no_urut == 0) ? element.service + ' <<--' : element.service) %></td>
+                            
+                        </tr>  
+                        <%
+                        no_urut=1; 
+                         }); %>                                    
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+  <%- include('footer') %>
+    <script>
+        const user = "<%= user %>";
+        const cabang = "<%= cabang %>";
+
+        function btn_Call(){
+            const btnID = $("#btn_call");
+            const nomor_tix = $('#nomor_tix').html();
+            console.log(cabang,nomor_tix,user);
+            const url = "./panggil?nomor_tix="+nomor_tix+"&cabang="+cabang+"&user="+user;
+            console.log("Ajax URL : ", url)
+            $.ajax({url: url, success : function (result){
+                console.log(result);
+            }})
+            btnID.html("<button class='btn btn-danger col me-2'>SKIP</button><button class='btn btn-success col'>SELESAI</button>");
+        }
+    </script>
+    
+    <script src="jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap JS (Bootstrap 5) -->
+    <script src="bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

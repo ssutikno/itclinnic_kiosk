@@ -1,0 +1,16 @@
+{
+    "services":[
+        {
+            "name":"PERBAIKAN",
+            "url":"http://localhost:3000/service1"
+        },
+        {
+            "name":"PENGAMBILAN",
+            "url":"http://localhost:3000/service2"
+        },
+        {
+            "name":"PEMBELIAN",
+            "url":"http://localhost:3000/service2"
+        }
+    ]
+}

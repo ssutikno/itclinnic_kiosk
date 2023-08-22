@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>IT Clinnic Ticketing</title>
+        <!-- Bootstrap CSS (Bootstrap 5) -->
+        <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        
+    </head>
+    <body>
+        <%- include('header'); %>
+
+        <div class="container">
+            <div class="row">
+                <h3>Report User</h3>
+            </div>
+            <div class="row">
+                <table id="cabang" class="table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Kode</th>
+                            <th>Nama</th>
+                            <th>Kota</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% no_urut = 0;
+                        rows.forEach(item =>{ 
+                            no_urut = no_urut + 1;
+                            %>
+                            <tr>
+                                <td><%= no_urut %></td>
+                                <td><%= item.ID %></td>
+                                <td><%= item.nama %></td>
+                                <td><%= item.kota %></td>
+                                <td>
+                                    <button>Action</button>
+                                </td>
+                            </tr>
+                        <% }) %>
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+        <%- include('footer'); %>
+
+        <!-- Bootstrap JS (Bootstrap 5) -->
+        <script src="jquery/dist/jquery.min.js"></script>
+        <script src="bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="datatables.net/js/jquery.dataTables.min.js"></script>
+        <script>
+            // import DataTable from 'datatables.net-dt';
+            let table = new DataTable('#cabang')
+        </script>
+    </body>
+</html>

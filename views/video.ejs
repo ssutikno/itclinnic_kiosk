@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTSP to HLS Example</title>
+    <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+</head>
+<body>
+    <video id="rtspPlayer" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
+        <source src="rtsp://admin:password@192.168.90.205:554/Streaming/Channels/101" type="application/x-mpegURL">
+    </video>
+
+    <script>
+        var player = videojs('rtspPlayer');
+    </script>
+</body>
+</html>

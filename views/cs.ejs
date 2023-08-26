@@ -51,16 +51,16 @@
                         </tr>
                         <!-- print list of tix printed by customer -->
                         <%  let no_urut = 0;
-                        row.forEach(element => { 
-                            if (no_urut == 0) { %>
-                                <tr class="blinking">
+                        row.forEach(element => { %>
+                            <tr>
+                                <td <%= ( (no_urut == 0) ? 'id=nomor_tix' : '' ) %>><%= element.tix_number %></td>
+                           <% if (no_urut == 0) { %>
+                                <td class="blinking"><%= ( (no_urut == 0) ? element.service + ' <<--' : element.service) %></td>
                             <% } else { %>
-                                <tr>
+                                <td><%= ( (no_urut == 0) ? element.service + ' <<--' : element.service) %></td>
                             <% } %>
-                            <td <%= ( (no_urut == 0) ? 'id=nomor_tix' : '' ) %>><%= element.tix_number %></td>
-                            <td><%= ( (no_urut == 0) ? element.service + ' <<--' : element.service) %></td>
-                            
-                        </tr>  
+                                                                                    
+                            </tr>  
                         <%
                         no_urut=1; 
                          }); %>                                    

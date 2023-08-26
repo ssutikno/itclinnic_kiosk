@@ -23,23 +23,22 @@ function createTable(db) {
     db.exec(`
         CREATE TABLE user
         (
-        ID varchar(10),
+        ID varchar(25),
         nama   VARCHAR(50) NOT NULL,
         password   VARCHAR(50) NOT NULL,
-        kota VARCHAR(50),
+        branchCode VARCHAR(5),
         logged_in integer,
-        lastlogin text
+        last_login integer
         );
     `);
     db.exec(`
         CREATE TABLE cabang
         (
-        ID VARCHAR(5) NOT NULL,
+        branchCode VARCHAR(5) NOT NULL,
         nama   VARCHAR(50) NOT NULL,
         kota   VARCHAR(50) NOT NULL,
-        last_date text,
-        last_tix integer
-        );
+        propinsi varchar(25)
+      );
     `);
     db.exec(`
         CREATE TABLE transaksi
@@ -48,7 +47,7 @@ function createTable(db) {
         tix_number integer,
         service varchar(10) not null,
         print_time integer,
-        user_id varchar(10),
+        user_id varchar(25),
         start_time integer,
         end_time integer,
         survey_level integer

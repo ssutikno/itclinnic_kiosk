@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const multer = require('multer');
 const dbsqlite = require('./routes/db');
 const app = express();
@@ -14,6 +15,14 @@ app.use/'/', express.static(path.join(__dirname, 'node_modules/admin-lte/dist/')
 
 const db = dbsqlite.createDbConnection();
 
+// check the login state of the user. if last_login - now > 1 hour, should relogin.
+function isLoggedIn(userId){
+    db.get("SELECT last_login FROM user WHERE id=?",[userId],(result)=>{
+
+    })
+
+
+}
 app.get('/newtix', (req, res)=>{
    const cabang = req.query.cabang;
    const servis = req.query.servis;
@@ -115,7 +124,7 @@ app.get('/generate/:table', (req,res)=>{
       db.exec(`
           CREATE TABLE user
           (
-          ID varchar(10),
+          ID varchar(25),
           nama   VARCHAR(50) NOT NULL,
           password   VARCHAR(50) NOT NULL,
           kota VARCHAR(50),
@@ -146,7 +155,7 @@ app.get('/generate/:table', (req,res)=>{
           tix_number integer,
           service varchar(10) not null,
           print_time integer,
-          user_id varchar(10),
+          user_id varchar(25),
           start_time integer,
           end_time integer,
           survey_level integer
@@ -245,6 +254,23 @@ app.post('/import/user', (req, res)=>{
 
   res.render('import', {status});
 })
+
+app.get('/login',(req,res)=>{
+  res.render('login')
+})
+
+app.get('/reset', (req, res)=>{
+  const filepath = "./ticketing.db";
+  db.close();
+    fs.unlink(filepath, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+      } else {
+        console.log('File deleted successfully');
+      }
+    });
+
+});
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000');

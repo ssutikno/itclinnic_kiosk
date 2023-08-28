@@ -13,16 +13,81 @@ app.use('/plugins', express.static(path.join(__dirname, 'node_modules/admin-lte/
 app.use('/', express.static(path.join(__dirname,'node_modules/')));
 app.use/'/', express.static(path.join(__dirname, 'node_modules/admin-lte/dist/'));
 
+app.use(express.json()) // for parsing application/json
+app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
 const db = dbsqlite.createDbConnection();
 
 // check the login state of the user. if last_login - now > 1 hour, should relogin.
 function isLoggedIn(userId){
-    db.get("SELECT last_login FROM user WHERE id=?",[userId],(result)=>{
-
+    db.get("SELECT * FROM user WHERE ID=?",[userId],(err, row)=>{      
+      // console.log(userId, row);
+      return row;
     })
-
-
 }
+function findUser(userId, array){
+    var result ={}
+    for(var item of array){
+      // console.log('findUser', item.ID)
+      if (item.ID == userId) {
+        // console.log(item);
+        result = item;
+        break
+      }
+    }
+    return result
+}
+
+app.get('/user', (req, res)=>{
+  let userid = req.query.userid;
+  // console.log(isLoggedIn('931'));
+  db.all("SELECT * from user", (err, rows)=>{
+    // console.rows;
+    let user = {}
+    if (userid != {} ){
+      user = findUser(userid, rows);
+    } else {
+      user = rows[0];
+    }
+    //  console.log('Hasil ', user);
+     res.render('user', {rows, user});
+  })
+})
+// update 
+app.post('/user', (req, res)=>{
+  const data = req.body;
+  db.get('SELECT * from user WHERE ID=?',[data.ID], (err, result)=>{
+    // console.log(result);
+    if(result){
+      db.run("UPDATE user SET nama=?, password=?, branchcode=? WHERE ID=?",[data.nama, data.password, data.branchcode, data.ID],(err)=>{
+        // console.log('updated');
+        res.status(200).send('OK Updated');
+      })
+    } else {
+      // add new
+      db.run('INSERT INTO user(ID, nama, password, branchcode) VALUES (?,?,?,?)',[data.ID, data.nama, data.password, data.branchcode], (err)=>{
+        // console.log('inserted')
+        res.status(200).send('OK Inserted');
+      })
+      
+    }
+  })
+})
+
+app.get('/user/list', (req, res)=>{
+  db.all("SELECT * from user", (err, rows)=>{
+    console.log(rows);
+    res.json(rows);
+  })
+})
+
+app.get('/user/delete',(req,res)=>{
+  console.log('Delete', req.query.userid)
+  db.run('DELETE FROM user WHERE ID=?',req.query.userid,(err)=>{
+    res.status(200).send("Ok Deleted");
+  } )
+})
+
 app.get('/newtix', (req, res)=>{
    const cabang = req.query.cabang;
    const servis = req.query.servis;
@@ -256,6 +321,7 @@ app.post('/import/user', (req, res)=>{
 })
 
 app.get('/login',(req,res)=>{
+  isLoggedIn('030');
   res.render('login')
 })
 

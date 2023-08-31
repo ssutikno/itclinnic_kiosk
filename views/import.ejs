@@ -1,7 +1,7 @@
 <html>
     <head>
         
-        <link rel="stylesheet" type="text/css" href="bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <body>
         <div class="container">
@@ -15,25 +15,30 @@
                 %>
             </div>
             <div class="container-fluid py-5">
-                <form action="import/cabang" method="post" class="form">
+                <h3>make and import form for user to import cabang.csv</h3>
+                <p class="warning">Warning : upload akan menghapus data lama.</p>
+                <form action="/import/cabang" method="post" class="form" enctype='multipart/form-data'>
                     <div class="mb-3">
                         <label for="cabang" class="form-label">File Cabang.csv : kode, alamat, kota</label>
                         <input type="file" class="form-control" name="cabang">
-                        <button type="submit" class="btn btn-primary">SUBMIT</button>
+                        <button type="submit" class="btn btn-primary mt-3">SUBMIT</button>
                     </div>
                 </form>
-                <form action="import/user" method="post">
+
+                <h3>make and import form for user to import user.csv</h3>
+                <p class="warning">Warning : upload akan menghapus data lama. password akan diubah menjadi standard '123456'</p>
+                <form action="/import/user" method="post" class="form" enctype='multipart/form-data'>
                     <div class="mb-3">
-                        <label for="user" class="form-label">File User.csv : userid, nama, kode ( kode cabang )</label>
-                        <input type="file" class="form-control" name="user">   
-                        <button type="submit" class="btn btn-primary">SUBMIT</button> 
+                        
+                        <label for="user" class="form-label">File User.csv : UserID; nama; Job; Admin; branchID; BranchCode; Branch</label>
+                        <input type="file" class="form-control " name="user">
+                        <button type="submit" class="btn btn-primary mt-3">SUBMIT</button>
                     </div>
-                    
                 </form>
-    
+
             </div>
     
         </div>
-        <script type="text/javascript" src="bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/bootstrap/dist/js/bootstrap.min.js"></script>
     </body>
 </html>

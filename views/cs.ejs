@@ -50,8 +50,9 @@
                             <th>Layanan</th>
                         </tr>
                         <!-- print list of tix printed by customer -->
-                        <%  let no_urut = 0;
-                        row.forEach(element => { %>
+                        <%                          
+                        let no_urut = 0;
+                        rows.forEach(element => { %>
                             <tr>
                                 <td <%= ( (no_urut == 0) ? 'id=nomor_tix' : '' ) %>><%= element.tix_number %></td>
                            <% if (no_urut == 0) { %>
@@ -74,6 +75,8 @@
     <!-- Footer -->
   <%- include('footer') %>
     <script>
+
+
         const user = "<%= user %>";
         const cabang = "<%= cabang %>";
 
@@ -88,6 +91,8 @@
             }})
             btnID.html("<button class='btn btn-danger col me-2'>SKIP</button><button class='btn btn-success col'>SELESAI</button>");
         }
+
+        
     </script>
     
     <script src="jquery/dist/jquery.min.js"></script>

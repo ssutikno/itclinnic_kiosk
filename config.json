@@ -2,15 +2,15 @@
     "services":[
         {
             "name":"PERBAIKAN",
-            "url":"http://localhost:3000/service1"
+            "url":"http://localhost:3000/newtix?service=perbaikan"
         },
         {
             "name":"PENGAMBILAN",
-            "url":"http://localhost:3000/service2"
+            "url":"http://localhost:3000/newtix?service=pengambilan"
         },
         {
             "name":"PEMBELIAN",
-            "url":"http://localhost:3000/service2"
+            "url":"http://localhost:3000/newtix?service=pembelian"
         }
     ]
 }

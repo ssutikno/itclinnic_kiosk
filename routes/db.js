@@ -25,7 +25,7 @@ function createTable(db) {
         (
         ID varchar(25),
         nama   VARCHAR(50) NOT NULL,
-        password   VARCHAR(50) NOT NULL,
+        password   VARCHAR(50),
         branchCode VARCHAR(5),
         logged_in integer,
         last_login integer

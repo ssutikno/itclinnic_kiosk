@@ -1,0 +1,64 @@
+<!-- html page for queue ticket layout. this page will be printed from queue.ejs page -->
+<!-- Path: views\print.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- make queue ticket style, there is header with company logo, body is the number of the queue ticket number which is printed in BIG size, and a footer for message information -->
+    <style>
+        @media print {
+            @page {
+                size: 80mm 80mm;
+                margin: 0;
+            }
+            html, body {
+                width: 80mm;
+                height: 80mm;
+                margin: 0;
+                padding: 0;
+            }
+            .header {
+                width: 80mm;
+                height: 20mm;
+                background-color: #f8f9fa;
+                text-align: center;
+            }
+            /* logo style width: 3 cm */
+            .header img {
+                width: 30mm;
+                height: 15mm;
+            }
+            .body {
+                width: 80mm;
+                height: 40mm;
+                background-color: #f8f9fa;
+                text-align: center;
+                font-size: 40mm;
+            }
+            .footer {
+                width: 80mm;
+                height: 20mm;
+                background-color: #f8f9fa;
+                text-align: center;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- make component of Queue ticket -->
+    <div class="header">
+        <img src="img/logo.png" alt="logo">
+    </div>
+    <div class="body">
+        <p id="nomor_tix"></p>
+    </div>
+    <div class="footer">
+        <p id="footer"></p>
+    </div>
+
+</body>
+</html>

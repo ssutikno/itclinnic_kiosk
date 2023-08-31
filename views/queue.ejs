@@ -201,7 +201,7 @@
 
                 </div> -->
                 <script>
-                    alert('Cabang : <%=config.cabang.kode%> / <%= config.cabang.kota%>')
+                     alert('Cabang : <%=config.cabang%>')
                 </script>
             </div>
             <div class="row">
@@ -218,8 +218,10 @@
 
             <div class="custom-dialog" id="customDialog">
                 <div class="centered-buttons">
-                    <% config.services.forEach(service => { %>
-                        <button class="btn btn-primary" onclick="gotoURL('<%=service.url%>')"><%= service.name %></button>
+                    <% config.services.forEach(service => { 
+                        url = service.url + "&cabang=" + config.cabang ;
+                        %>
+                        <button class="btn btn-primary" onclick="gotoURL('<%=url%>')"><%= service.name %></button>
                     
                     <% }) %>
                 </div>
@@ -276,7 +278,8 @@
             });
             function gotoURL(url){
                 $.get(url,function(data){
-                    alert(data);
+                    alert("Nomor Tiket anda : " + data.new_tix);
+                    console.log(data.new_tix);
                     $("#customDialog").hide(1000);
                     $(".welcome").show();
                     $(".touch_text").show();                     
@@ -287,9 +290,10 @@
                 document.body.appendChild(iframe);
                 iframe.style.display='none';
                 var doc = iframe.contentWindow.document;
+                
+                
                 doc.open();
                 doc.write('');
-
             }
         </script>
     </body>

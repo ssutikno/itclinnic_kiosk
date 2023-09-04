@@ -224,22 +224,26 @@ app.post('/import/cabang', upload.single("cabang"),(req, res)=>{
 app.get('/newtix', (req, res)=>{
    const cabang = req.query.cabang;
    const servis = req.query.service;
+   const user = req.query.user;
    const today = new Date().toISOString().slice(0, 10);
-  
+   console.log(cabang, servis, user, today);
+ 
    //  dapatkan nomor tiket terbaru, pada hari ini
 
-   db.get("SELECT max(tix_number) from transaksi WHERE cabang = ? and strftime('%Y-%m-%d', print_time) = ?", [cabang, today], (err, row)=>{
+   db.get("SELECT max(tix_number) from transaksi WHERE cabang = ? and user_id = ? and strftime('%Y-%m-%d', print_time) = ?", [cabang, user, today], (err, row)=>{
     if(err){
       res.render(err.message)
     } else {
       new_tix = row['max(tix_number)'] + 1;
-      db.run("INSERT INTO transaksi(cabang,service, tix_number, print_time) values (?,?,?,CURRENT_TIMESTAMP)", [cabang, servis, new_tix], (err)=>{
+      let sql = "INSERT INTO transaksi(cabang, user_id, service, tix_number, print_time) values (?,?,?,?,CURRENT_TIMESTAMP)";
+      db.run(sql, [cabang, user, servis, new_tix], (err)=>{
         if(err){
           console.log(err.message);
           res.send('ERROR:', err.message);
         } else {
             const jsonData = {
               'cabang' : cabang,
+              'user' : user,
               'servis' : servis,
               'new_tix': new_tix
               
@@ -250,6 +254,44 @@ app.get('/newtix', (req, res)=>{
     }
    } )
 })
+
+// skip route
+app.get('/skip', (req, res)=>{
+  const cabang = req.query.cabang;
+  const user = req.query.user;
+  const nomor_tix = req.query.nomor_tix;
+  const today = new Date().toISOString().slice(0, 10);
+  console.log(cabang, user, nomor_tix);
+  db.run("UPDATE transaksi SET end_time = datetime('now'), survey_level='0' WHERE user_id = ? and tix_number=? and cabang=? ", [user, nomor_tix, cabang], (err,rows)=>{
+    if(err){
+      console.log(err.message);
+      res.send({'ERROR':err.message})
+    } else {
+      console.log('Result ', rows)
+      res.send({'status':'OK'});
+    }
+  })
+})
+
+// selesai route
+app.get('/selesai', (req, res)=>{
+  const cabang = req.query.cabang;
+  const user = req.query.user;
+  const nomor_tix = req.query.nomor_tix;
+  const today = new Date().toISOString().slice(0, 10);
+  console.log(cabang, user, nomor_tix);
+  db.run("UPDATE transaksi SET end_time = datetime('now') WHERE user_id = ? and tix_number=? and cabang=? ", [user, nomor_tix, cabang], (err,rows)=>{
+    if(err){
+      console.log(err.message);
+      res.send({'ERROR':err.message})
+    } else {
+      console.log('Result ', rows)
+      res.send({'status':'OK'});
+    }
+  })
+})
+
+
 
 app.get('/cs', (req, res)=>{
   
@@ -265,8 +307,8 @@ app.get('/cs', (req, res)=>{
       if(row.logged_in == 0){
         res.render('login', {error: 'User ID atau Password salah'});
       } else {
-        // get all rows from transaksi where cabang=cabang and print_time = today, then send it to cs.ejs
-        db.all("SELECT * FROM transaksi WHERE cabang = ? and strftime('%Y-%m-%d', print_time) = ?", [cabang, today], (err,rows)=>{
+        // get all rows from transaksi where cabang=cabang, user = user and print_time = today, then send it to cs.ejs
+        db.all("SELECT * FROM transaksi WHERE cabang = ? and user_id = ? and strftime('%Y-%m-%d', print_time) = ? and end_time = NULL", [cabang, user, today], (err,rows)=>{
           
           if(err){
             res.send(err.message)
@@ -393,9 +435,10 @@ app.get('/demo', (req,res)=>{
 })
 // call the queue kiosk
 app.get('/queue', (req,res)=>{
-  // call it by /queue?cabang=kode&kota=kota
+  // call it by /queue?cabang=kode&user=userid
   // get filenames from folder ./public/videos include the relative path into videos array and render to queue.ejs
   const cabang = req.query.cabang;
+  const user = req.query.user;
   
     console.log(cabang);
   const fs = require('fs');
@@ -407,7 +450,7 @@ app.get('/queue', (req,res)=>{
 
   // read config.json and pass to queue.ejs
   var config = require('./config.json');
-  config = { "services":config.services, cabang }
+  config = { "services":config.services, "cabang":cabang, "user":user }
   console.log(config);
   res.render('queue', {videos: videos, config: config});
 })
@@ -549,34 +592,34 @@ app.get('/report', (req, res)=>{
 })
 
 
-app.post('/login', (req, res)=>{
+// app.post('/login', (req, res)=>{
 
-// set database of user to logged_in to 1 and last_login to current time
-  const data = req.body;
-  console.log(data);
+// // set database of user to logged_in to 1 and last_login to current time
+//   const data = req.body;
+//   console.log(data);
 
-  // check if user exist and password match. if yes, set logged_in to 1 and last_login to current time
-  db.get("SELECT * FROM user WHERE ID=? and password=?",[data.userid, data.password], (err, row)=>{
-    if(err){
-      res.render(err.message);
-    } else {
-      if(row){
-        db.run("UPDATE user SET logged_in=1, last_login=datetime('now') WHERE ID=?",[data.userid], (err)=>{
-          if(err){
-            res.render(err.message);
-          } else {
-            // render cs.ejs with data from user and cabang
-            res.render('cs', {user: row.ID, cabang: row.branchCode});
+//   // check if user exist and password match. if yes, set logged_in to 1 and last_login to current time
+//   db.get("SELECT * FROM user WHERE ID=? and password=?",[data.userid, data.password], (err, row)=>{
+//     if(err){
+//       res.render(err.message);
+//     } else {
+//       if(row){
+//         db.run("UPDATE user SET logged_in=1, last_login=datetime('now') WHERE ID=?",[data.userid], (err)=>{
+//           if(err){
+//             res.render(err.message);
+//           } else {
+//             // render cs.ejs with data from user and cabang
+//             res.render('cs', {user: row.ID, cabang: row.branchCode});
             
-          }
-        })
-      } else {
-        res.render('login', {error: 'User ID atau Password salah'});
-      }
-    }
-  })
+//           }
+//         })
+//       } else {
+//         res.render('login', {error: 'User ID atau Password salah'});
+//       }
+//     }
+//   })
 
-})
+// })
 
 app.get('/reset', (req, res)=>{
   const filepath = "./ticketing.db";

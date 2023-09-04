@@ -193,15 +193,8 @@
             </div>
             <div class="touch_text soft-blink">Touch the screen to START</div>
             <div class="row">
-            
-            <!-- show welcome text "WELCOME to AXIOO IT CLINNIC " -->
-                <!-- <div class="welcome soft-blink">
-                    <p>Welcome to AXIOO IT CLINNIC</p>
-                    
-
-                </div> -->
                 <script>
-                     alert('Cabang : <%=config.cabang%>')
+                     alert('Cabang : <%=config.cabang%> \nUser : <%=config.user%>')
                 </script>
             </div>
             <div class="row">
@@ -219,9 +212,9 @@
             <div class="custom-dialog" id="customDialog">
                 <div class="centered-buttons">
                     <% config.services.forEach(service => { 
-                        url = service.url + "&cabang=" + config.cabang ;
+                        url = service.url ; ;
                         %>
-                        <button class="btn btn-primary" onclick="gotoURL('<%=url%>')"><%= service.name %></button>
+                        <button class="btn btn-primary" onclick="gotoURL('<%=url%>', '<%=config.cabang%>','<%=config.user%>')"><%= service.name %></button>
                     
                     <% }) %>
                 </div>
@@ -276,8 +269,10 @@
                 //true or false - should the marquee be duplicated to show an effect of continues flow
                 duplicated: true
             });
-            function gotoURL(url){
-                $.get(url,function(data){
+            function gotoURL(url, cabang, user){
+                let targetURL = url + "&user=" + user + "&cabang=" + cabang;
+                console.log(targetURL);
+                $.get(targetURL, function(data){
                     alert("Nomor Tiket anda : " + data.new_tix);
                     console.log(data.new_tix);
                     $("#customDialog").hide(1000);

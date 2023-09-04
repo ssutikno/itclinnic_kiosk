@@ -39,7 +39,9 @@
                         Nomor Urut paling atas
                     </div>                    
                     <div class="col" id="btn_call">
-                        <button class="btn btn-primary"  onclick="btn_Call()">Panggil</button>
+                        <button class="btn btn-primary"  id="btn_panggil">Panggil</button>
+                        <button class="btn btn-danger" id="btn_skip">Skip</button>
+                        <button class="btn btn-success" id="btn_selesai">Selesai</button>
                     </div>
                 </div>
                 
@@ -74,28 +76,79 @@
 
     <!-- Footer -->
   <%- include('footer') %>
+  <script src="jquery/dist/jquery.min.js"></script>
     <script>
 
+        // when document ready hide btn skip & selesai
+        $(document).ready(function () {
+            $("#btn_skip").hide();
+            $("#btn_selesai").hide();
+            const user = "<%= user %>";
+            const cabang = "<%= cabang %>";
+            
+            // btn_panggil on 
+            $("#btn_panggil").click(function (e) { 
+                e.preventDefault();
+                const nomor_tix = $('#nomor_tix').html();
+                console.log(cabang,nomor_tix,user);
+                const url = "./panggil?nomor_tix="+nomor_tix+"&cabang="+cabang+"&user="+user;
+                console.log("Ajax URL : ", url)
+                $.ajax({url: url, success : function (result){
+                    console.log(result);
+                }})
+                // show btn_skip & btn_selesai
+                $("#btn_panggil").hide();
+                $("#btn_skip").show();
+                $("#btn_selesai").show();
 
-        const user = "<%= user %>";
-        const cabang = "<%= cabang %>";
+            });
+            
+            // btn_skip onclick
+            $("#btn_skip").click(function (e) { 
+                e.preventDefault();
+                const nomor_tix = $('#nomor_tix').html();
+                console.log(cabang,nomor_tix,user);
+                const url = "./skip?nomor_tix="+nomor_tix+"&cabang="+cabang+"&user="+user;
+                console.log("Ajax URL : ", url)
+                $.ajax({url: url, success : function (result){
+                    console.log(result);
+                }})
+                // show btn_panggil
+                $("#btn_panggil").show();
+                $("#btn_skip").hide();
+                $("#btn_selesai").hide();
+                // refresh document
+                location.reload();
+            });
 
-        function btn_Call(){
-            const btnID = $("#btn_call");
-            const nomor_tix = $('#nomor_tix').html();
-            console.log(cabang,nomor_tix,user);
-            const url = "./panggil?nomor_tix="+nomor_tix+"&cabang="+cabang+"&user="+user;
-            console.log("Ajax URL : ", url)
-            $.ajax({url: url, success : function (result){
-                console.log(result);
-            }})
-            btnID.html("<button class='btn btn-danger col me-2'>SKIP</button><button class='btn btn-success col'>SELESAI</button>");
-        }
+            // btn_selesai onclick
+            $("#btn_selesai").click(function (e) { 
+                e.preventDefault();
+                const nomor_tix = $('#nomor_tix').html();
+                console.log(cabang,nomor_tix,user);
+                const url = "./selesai?nomor_tix="+nomor_tix+"&cabang="+cabang+"&user="+user;
+                console.log("Ajax URL : ", url)
+                $.ajax({url: url, success : function (result){
+                    console.log(result);
+                }})
+                // show btn_panggil
+                $("#btn_panggil").show();
+                $("#btn_skip").hide();
+                $("#btn_selesai").hide();
+                // refresh document
+                location.reload();
+            });
+        });
+
+
+
+
+
 
         
     </script>
     
-    <script src="jquery/dist/jquery.min.js"></script>
+
     <!-- Bootstrap JS (Bootstrap 5) -->
     <script src="bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>

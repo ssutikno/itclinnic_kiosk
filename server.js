@@ -634,10 +634,10 @@ app.get('/reset', (req, res)=>{
 
 });
 
-// app.listen(3000, () => {
-//   console.log('Server listening on port 3000');
-// });
-
-server.listen(PORT, () => {
-  console.log('Server listening on port 443');
+app.listen(3000, () => {
+  console.log('Server listening on port 3000');
 });
+
+// server.listen(PORT, () => {
+//   console.log('Server listening on port 443');
+// });

@@ -17,7 +17,7 @@ const upload = multer({ dest: '/uploads/' ,storage: multer.memoryStorage()});
 
 const server = https.createServer(options, app);
 
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 

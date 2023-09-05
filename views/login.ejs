@@ -1,6 +1,6 @@
 <html>
     <head>
-        <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
         <style>
         body {
             display: flex;
@@ -23,7 +23,15 @@
     <body>
         <div class="container login-container">
             <div class="row">
+                <!-- welcome to Ticketing IT-Clinnic  -->
+                <div class="col">
+                    <h3>Ticketing IT-Clinnic</h1>
+                </div>
+                <hr>                
+            </div>
+            <div class="row">
                 <h1>Sign in</h1>
+                <p class="text-danger"><%=error %></p>
             </div>
             <div class="row">
                 <form action="/login" method="post">
@@ -38,8 +46,16 @@
                     <button type="submit" class="btn btn-primary">Sign in</button>
                 </form>
             </div>
+            
+            <!-- footer copyright IMV 2023, for IT-Clinic -->
+            <div class="row">
+                <footer class="bg-dark text-white text-center footer pt-2 sticky-bottom align-items-center">
+                    <p>&copy; 2023 IMV for IT-Clinic.</p>
+                </footer>
+            </div>
+
         </div>
 
-        <script src="bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

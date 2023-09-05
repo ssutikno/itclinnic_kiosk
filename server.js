@@ -33,6 +33,66 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 
 const db = dbsqlite.createDbConnection();
 
+// function for delete and recreate table user
+function createTableUser(){
+  db.exec('DROP TABLE user');
+  db.exec(`
+      CREATE TABLE user
+      (
+      ID varchar(25),
+      nama   VARCHAR(50) NOT NULL,
+      password   VARCHAR(50) NOT NULL,
+      branchcode VARCHAR(50),
+      logged_in integer,
+      lastlogin text
+      );
+  `);
+}
+
+// function for delete and recreate table cabang
+function createTableCabang(){
+  db.exec('DROP TABLE cabang');
+  db.exec(`
+
+      CREATE TABLE cabang
+      ( 
+      branchCode VARCHAR(5) NOT NULL,
+      nama   VARCHAR(50) NOT NULL,
+      kota   VARCHAR(50) NOT NULL,
+      propinsi VARCHAR(50),
+      last_date text,
+      last_tix integer
+      );
+  `);
+}
+
+// function for delete and recreate table transaksi
+function createTableTransaksi(){
+  // drop table transaksi if exist
+  db.exec('DROP TABLE transaksi');
+  db.exec(`
+      CREATE TABLE transaksi
+      (
+      cabang   VARCHAR(5) NOT NULL,
+      tix_number integer,
+      service varchar(10) not null,
+      print_time integer,
+      user_id varchar(25),
+      start_time integer,
+      end_time integer,
+      survey_level integer
+      );
+  `);
+  
+}
+
+// function to create database and all tables
+function createDatabase(){
+  createTableUser();
+  createTableCabang();
+  createTableTransaksi();
+}
+
 
 function findUser(userId, array){
     var result ={}
@@ -291,39 +351,53 @@ app.get('/selesai', (req, res)=>{
   })
 })
 
-
-
 app.get('/cs', (req, res)=>{
   
   const cabang = req.query.cabang;
   const user = req.query.user;
   const today = new Date().toISOString().slice(0, 10);
 
-  // check if user is not logged_in, then show the login page. else show the cs page
-  db.get("SELECT * FROM user WHERE ID=?",[user], (err, row)=>{
-    if(err){
-      res.render(err.message);
-    } else {
-      if(row.logged_in == 0){
-        res.render('login', {error: 'User ID atau Password salah'});
+  // if no parameter, then show the login page
+
+  if(!cabang || !user){
+    res.render('login', {error: ''});
+  }
+  else {
+    // check if user is not logged_in, then show the login page. else show the cs page
+    db.get("SELECT * FROM user WHERE ID=?",[user], (err, row)=>{
+      // if result is null, then user not exist, show login page
+      console.log(row);
+      if(!row){
+        res.render('login', {error: 'Silahkan login terlebih dahulu'});
       } else {
-        // get all rows from transaksi where cabang=cabang, user = user and print_time = today, then send it to cs.ejs
-        db.all("SELECT * FROM transaksi WHERE cabang = ? and user_id = ? and strftime('%Y-%m-%d', print_time) = ? and end_time = NULL", [cabang, user, today], (err,rows)=>{
-          
-          if(err){
-            res.send(err.message)
+        if(err){
+          res.render(err.message);
+        } else {
+
+          if(row.logged_in == 0){
+            res.render('login', {error: 'Anda belum login'});
           } else {
-            console.log('ROW : ',rows);
+            // get all rows from transaksi where cabang=cabang, user = user and print_time = today, then send it to cs.ejs
+            db.all("SELECT * FROM transaksi WHERE cabang = ? and user_id = ? and strftime('%Y-%m-%d', print_time) = ? and end_time = NULL", [cabang, user, today], (err,rows)=>{
+              
+              if(err){
+                res.send(err.message)
+              } else {
+                console.log('ROW : ',rows);
 
-            res.render('cs', {user, cabang, rows})
+                res.render('cs', {user, cabang, rows})
+              }
+            })
+            res.render('cs', {user: row.ID, cabang: row.branchCode, row : row});
           }
-        })
-        res.render('cs', {user: row.ID, cabang: row.branchCode, row : row});
+        }
       }
-    }
-  })
-})
 
+      
+    })
+  }
+    
+})
 
 app.get('/panggil', (req,res)=>{
   const user = req.query.user;
@@ -340,7 +414,6 @@ app.get('/panggil', (req,res)=>{
     }
   })
 })
-
 
 app.get('/reportcabang', (req, res)=>{
   const cabang = req.query.cabang;
@@ -369,55 +442,6 @@ app.get('/reportuser', (req, res)=>{
   })
 })
 
-
-app.get('/generate/:table', (req,res)=>{
-  switch (table) {
-    case 'user':
-      db.exec('DROP TABLE user');
-      db.exec(`
-          CREATE TABLE user
-          (
-          ID varchar(25),
-          nama   VARCHAR(50) NOT NULL,
-          password   VARCHAR(50) NOT NULL,
-          kota VARCHAR(50),
-          logged_in integer,
-          lastlogin text
-          );
-      `);
-      break;
-    case 'cabang':
-      db.exec('DROP TABLE cabang');
-      db.exec(`
-          CREATE TABLE cabang
-          (
-          ID VARCHAR(5) NOT NULL,
-          nama   VARCHAR(50) NOT NULL,
-          kota   VARCHAR(50) NOT NULL,
-          last_date text,
-          last_tix integer
-          );
-      `);
-      break;
-    case 'transaksi':
-      db.exec('DROP TABLE transaksi');
-      db.exec(`
-          CREATE TABLE transaksi
-          (
-          cabang   VARCHAR(5) NOT NULL,
-          tix_number integer,
-          service varchar(10) not null,
-          print_time integer,
-          user_id varchar(25),
-          start_time integer,
-          end_time integer,
-          survey_level integer
-          );
-      `);
-      break;
-  }
-})
-
 app.get('/', (req,res)=>{
   let sql = "SELECT max(tix_number) from transaksi WHERE cabang = ?";
     db.get(sql, ['030'], (err, row)=>{
@@ -433,6 +457,9 @@ app.get('/', (req,res)=>{
 app.get('/demo', (req,res)=>{
     res.render('demo');
 })
+
+
+
 // call the queue kiosk
 app.get('/queue', (req,res)=>{
   // call it by /queue?cabang=kode&user=userid
@@ -440,7 +467,13 @@ app.get('/queue', (req,res)=>{
   const cabang = req.query.cabang;
   const user = req.query.user;
   
-    console.log(cabang);
+  // if no parameter, show home screen, then exit function
+  if(!cabang || !user){
+    res.render('cs_display');
+    return;
+  }
+
+  // console.log(cabang);
   const fs = require('fs');
   const videos = [];
   const videoDir = './public/videos';
@@ -521,7 +554,7 @@ function isLoggedIn(userid){
 }
 
 app.get('/login',(req,res)=>{
-  res.render('login')
+  res.render('login', {error: ''})
 })
 
 // port login, check the user and password, if match, set logged_in to 1 and last_login to now
@@ -535,9 +568,10 @@ app.post('/login', (req, res)=>{
     if(err){
       res.render(err.message);
     } else {
-      let cabang = row.branchCode;
-      
+      // if result is not null, then user exist and password match
+            
       if(row){
+        let cabang = row.branchCode;
         db.run("UPDATE user SET logged_in=1, last_login=datetime('now') WHERE ID=?",[data.userid], (err)=>{
           console.log('cabang', cabang  );
           if(err){
@@ -558,12 +592,11 @@ app.post('/login', (req, res)=>{
                 console.log('ROW : ',rows);
                 res.render('cs', {user: row.ID, cabang: row.branchCode, rows : rows});
               }
-            })
-            
-            
+            })            
           }
         })
-      } else {
+      }  
+      else {
         res.render('login', {error: 'User ID atau Password salah'});
       }
     }

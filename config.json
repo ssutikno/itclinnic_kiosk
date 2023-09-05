@@ -12,5 +12,6 @@
             "name":"PEMBELIAN",
             "url":"/newtix?service=pembelian"
         }
-    ]
+    ],
+    "adminpass":"admin"
 }

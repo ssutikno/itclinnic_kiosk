@@ -470,6 +470,7 @@ app.get('/queue', (req,res)=>{
     res.render('home');
     return;
   }
+  
 
   // console.log(cabang);
   const fs = require('fs');

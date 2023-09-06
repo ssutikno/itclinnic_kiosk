@@ -1,6 +1,8 @@
 <html>
     <head>
         <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+        <script src="jquery/dist/jquery.min.js"></script>
+        <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <style>
         body {
             display: flex;
@@ -27,6 +29,7 @@
                 <div class="col">
                     <h3>Ticketing IT-Clinnic</h1>
                 </div>
+                <div id="error"></div>
                 <hr>                
             </div>
             <div class="row">
@@ -34,16 +37,21 @@
                 <p class="text-danger"><%=error %></p>
             </div>
             <div class="row">
-                <form action="/login" method="post">
+                <form>
                     <section class="mb-3">
                         <label for="userid" class="form-label">Username</label>
-                        <input id="username" class="form-control" name="userid" type="text" autocomplete="username" required autofocus>
+                        <input id="username" class="form-control" name="userid" type="text" autocomplete="username" placeholder="UserId" required autofocus>
                     </section>
                     <section class="mb-3 ">
                         <label for="current-password" class="form-label">Password</label>
                         <input id="current-password" class="form-control" name="password" type="password" autocomplete="current-password" required>
                     </section>
-                    <button type="submit" class="btn btn-primary">Sign in</button>
+                    <section class="mb-3 form-check">
+                        <input type="checkbox" name="isadmin" id="isadmin" class="form-check-input">
+                        <label for="isadmin" class="form-check-label">Administrator</label>
+                    </section>
+                    <button class="btn btn-primary">Sign in</button>
+                    <button class="btn btn-secondary">Activate Customer Display</button>
                 </form>
             </div>
             
@@ -55,7 +63,29 @@
             </div>
 
         </div>
+        <script>
+            $(()=>{
+                $("login").click(()=>{
+                    // if isadmin is checked, then go admin page with parameters. else go to cs page with parameters
+                    if ($("#isadmin").is(":checked")) {
+                        console.log($("#username").val());
+                        // ajax post call to /admin with parameters userid and password
+                        $.post("/admin", {userid: $("#username").val(), password: $("#current-password").val()}, (data, status)=>{
+                            console.log(data);
+                            if (data == "error") {
+                                $("#error").html("Invalid username or password");
+                            } else {
+                                window.location.href = "/admin?userid=" + $("#username").val() + "&password=" + $("#current-password").val();
+                            }
+                        })
 
-        <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+                    } else {
+                        window.location.href = "/cs?userid=" + $("#username").val() + "&password=" + $("#current-password").val();
+                    }
+                   
+                })
+            })
+        </script>
+        
     </body>
 </html>

@@ -13,5 +13,9 @@
             "url":"/newtix?service=pembelian"
         }
     ],
-    "adminpass":"admin"
+    "admin":{
+        "userid":"ADMIN",
+        "password":"123456"
+    }
+    
 }

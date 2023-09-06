@@ -470,7 +470,7 @@ app.get('/queue', (req,res)=>{
     res.render('home');
     return;
   }
-  
+
 
   // console.log(cabang);
   const fs = require('fs');
@@ -482,8 +482,10 @@ app.get('/queue', (req,res)=>{
 
   // read config.json and pass to queue.ejs
   var config = require('./config.json');
+// add cabang and user to config
   config.cabang = cabang;
-  config.user =user;
+  config.user = user;
+  
   console.log(config);
   res.render('queue', {videos: videos, config: config });
 })

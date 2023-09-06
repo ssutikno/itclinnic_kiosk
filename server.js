@@ -458,8 +458,6 @@ app.get('/demo', (req,res)=>{
     res.render('demo');
 })
 
-
-
 // call the queue kiosk
 app.get('/queue', (req,res)=>{
   // call it by /queue?cabang=kode&user=userid
@@ -469,7 +467,7 @@ app.get('/queue', (req,res)=>{
   
   // if no parameter, show home screen, then exit function
   if(!cabang || !user){
-    res.render('cs_display');
+    res.render('home');
     return;
   }
 
@@ -488,6 +486,18 @@ app.get('/queue', (req,res)=>{
   res.render('queue', {videos: videos, config: config});
 })
 
+app.get('/admin', (req,res)=>{
+  // get userid and password from query string, compare to config.admin.userid and config.admin.password
+  // if match, then render admin.ejs, else render login.ejs with error message
+  const userid = req.query.userid;
+  const password = req.query.password;
+  const config = require('./config.json');
+  if(userid == config.admin.userid && password == config.admin.password){
+    res.render('admin');
+  } else {
+    res.render('login', {error: 'User ID atau Password salah'});
+  }
+});
 
 app.get('/import', (req,res)=>{
    res.render('import');

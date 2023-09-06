@@ -481,9 +481,10 @@ app.get('/queue', (req,res)=>{
 
   // read config.json and pass to queue.ejs
   var config = require('./config.json');
-  config = { "services":config.services, "cabang":cabang, "user":user }
+  config.cabang = cabang;
+  config.user =user;
   console.log(config);
-  res.render('queue', {videos: videos, config: config});
+  res.render('queue', {videos: videos, config: config });
 })
 
 app.get('/admin', (req,res)=>{
@@ -499,6 +500,19 @@ app.get('/admin', (req,res)=>{
   }
 });
 
+app.post('/admin', (req,res)=>{
+  // get parameters from query string
+  const userid = req.body.userid;
+  const password = req.body.password;
+  const config = require('./config.json');
+  console.log(userid, password);
+  if(userid == config.admin.userid && password == config.admin.password){
+    res.render('admin');
+  } else {
+    res.render('login', {error: 'User ID atau Password salah'});
+  } 
+
+})
 app.get('/import', (req,res)=>{
    res.render('import');
 })
@@ -544,6 +558,19 @@ app.post('/import/user', (req, res)=>{
   res.render('import', {status});
 })
 
+app.get('/update', (req,res)=>{
+  // create file "update.dat" with content "updating source from github"	
+  const fs = require('fs');
+  fs.writeFile('update.dat', 'updating source from github', (err)=>{
+    if(err){
+      res.send(err.message);
+    } else {
+      res.send('OK');
+    }
+  })
+})
+
+
 // check the login state of the user. if last_login = today, then return true, else return false
 
 function isLoggedIn(userid){
@@ -563,6 +590,7 @@ function isLoggedIn(userid){
   )
 }
 
+
 app.get('/login',(req,res)=>{
   res.render('login', {error: ''})
 })
@@ -572,46 +600,52 @@ app.post('/login', (req, res)=>{
  // check the user and password, if match, set logged_in to 1 and last_login to now
   const data = req.body;
   console.log(data);
-  
-  // check if user exist and password match. if yes, set logged_in to 1 and last_login to current time
-  db.get("SELECT * FROM user WHERE ID=? and password=?",[data.userid, data.password], (err, row)=>{
-    if(err){
-      res.render(err.message);
-    } else {
-      // if result is not null, then user exist and password match
-            
-      if(row){
-        let cabang = row.branchCode;
-        db.run("UPDATE user SET logged_in=1, last_login=datetime('now') WHERE ID=?",[data.userid], (err)=>{
-          console.log('cabang', cabang  );
-          if(err){
-            res.render(err.message);
-          } else {
-            // render cs.ejs with data from user and cabang
-            // get rows from table transaksi, where cabang = row.branchCode and print_time = today
-            // get all rows from transaksi where cabang=cabang and print_time = today, then send it to cs.ejs
+  // if data.isadmin != 1, then check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
+  if(data.isadmin != 1){
+    // check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
+    // check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
+    db.get("SELECT * FROM user WHERE ID=? and password=?",[data.userid, data.password], (err, row)=>{
+      if(err){
+        res.render(err.message);
+      } else {
+        // if result is not null, then user exist and password match
+        if(row){
+          // check the action, if user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
+          if(row.action == 'user'){
+            // render cs.ejs with data from ticket table that match the userid and today
             let today = new Date().toISOString().slice(0, 10);
-            const sql = "SELECT * FROM transaksi WHERE cabang = ? and strftime('%Y-%m-%d', print_time) = ?";
-
-            db.all(sql, [cabang, today], (err,rows)=>{
-              console.log(sql, ' = ',rows);
-                      
+            const sql = "SELECT * FROM transaksi WHERE user_id = ? and strftime('%Y-%m-%d', print_time) = ?";
+            db.all(sql, [data.userid, today], (err,rows)=>{
               if(err){
                 res.send(err.message)
               } else {
-                console.log('ROW : ',rows);
                 res.render('cs', {user: row.ID, cabang: row.branchCode, rows : rows});
               }
-            })            
+            })
+          } else {
+            // render queue with parameters of user and cabang
+            res.render('queue', {user: row.ID, cabang: row.branchCode});
           }
-        })
-      }  
-      else {
-        res.render('login', {error: 'User ID atau Password salah'});
+        } else {
+          res.render('login', {error: 'User ID atau Password salah'});
+        }
       }
+    })
+  
+  } else {
+    // check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
+    const config = require('./config.json');
+    if(data.userid == config.admin.userid && data.password == config.admin.password){
+      // render admin.ejs
+      res.render('admin');
+    } else {
+      res.render('login', {error: 'User ID atau Password salah'});
     }
-  })
+  }
 })
+
+
+    
 
 // logout user, set logged_in to 0 and last_login to current time
 app.get('/logout', (req, res)=>{

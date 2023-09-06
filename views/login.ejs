@@ -37,7 +37,7 @@
                 <p class="text-danger"><%=error %></p>
             </div>
             <div class="row">
-                <form>
+                <form method="post" action="\login">
                     <section class="mb-3">
                         <label for="userid" class="form-label">Username</label>
                         <input id="username" class="form-control" name="userid" type="text" autocomplete="username" placeholder="UserId" required autofocus>
@@ -50,8 +50,8 @@
                         <input type="checkbox" name="isadmin" id="isadmin" class="form-check-input">
                         <label for="isadmin" class="form-check-label">Administrator</label>
                     </section>
-                    <button class="btn btn-primary">Sign in</button>
-                    <button class="btn btn-secondary">Activate Customer Display</button>
+                    <button class="btn btn-primary" type="submit" name="action" value="user">Sign in</button>
+                    <button class="btn btn-secondary" type="submit" name="äction" value="signage">Activate Customer Display</button>
                 </form>
             </div>
             
@@ -75,12 +75,12 @@
                             if (data == "error") {
                                 $("#error").html("Invalid username or password");
                             } else {
-                                window.location.href = "/admin?userid=" + $("#username").val() + "&password=" + $("#current-password").val();
+                                window.location.replace("/admin?userid=" + $("#username").val() + "&password=" + $("#current-password").val());
                             }
                         })
 
                     } else {
-                        window.location.href = "/cs?userid=" + $("#username").val() + "&password=" + $("#current-password").val();
+                        window.location.replace("/cs?userid=" + $("#username").val() + "&password=" + $("#current-password").val());
                     }
                    
                 })

@@ -563,6 +563,7 @@ app.post('/import/user', (req, res)=>{
 
 app.get('/update', (req,res)=>{
   // create file "update.dat" with content "updating source from github"	
+  console.log("Updating source from github");
   const fs = require('fs');
   fs.writeFile('update.dat', 'updating source from github', (err)=>{
     if(err){

@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "admin-lte": "^3.2.0",
     "bootstrap": "^5.3.1",
     "datatables.net-bs5": "^1.13.6",
     "datatables.net-buttons-bs5": "^2.4.1",

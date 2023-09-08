@@ -623,7 +623,7 @@ app.post('/login', (req, res)=>{
           fs.readdirSync(videoDir).forEach(file => {  
             videos.push('/public/videos/' + file);
           })
-          console.log("Action : ", data.action)
+          // console.log("Action : ", data.action)
           // check the action, if user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
           if(data.action == 'user'){
             console.log('User LOGIN', config);
@@ -634,11 +634,12 @@ app.post('/login', (req, res)=>{
               if(err){
                 res.send(err.message)
               } else {
-                res.render('cs', {user: row.ID, cabang: row.branchCode, rows : rows});
+                res.render('cs', {user: config.user, cabang: config.cabang, rows : rows});
               }
             })
           } else {
             // render queue with parameters of user and cabang
+            
             console.log('Queue LOGIN', config);
             res.render('queue', {videos: videos, config: config});
           }

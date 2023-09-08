@@ -47,8 +47,9 @@
                         <input id="current-password" class="form-control" name="password" type="password" autocomplete="current-password" required>
                     </section>
                     <section class="mb-3 form-check">
-                        <input type="checkbox" name="isadmin" id="isadmin" class="form-check-input" checked>
-                        <label for="isadmin" class="form-check-label">Administrator</label>
+                        <input type="number" name="isadmin" id="isadmin" value="0" hidden>
+                        <input type="checkbox" id="cb_isadmin" class="form-check-input" onclick="cbIsAdmin()">
+                        <label for="cb_isadmin" class="form-check-label">Administrator</label>
                     </section>
                     <button class="btn btn-primary" type="submit" name="action" value="user">Sign in</button>
                     <button class="btn btn-secondary" type="submit" name="äction" value="signage">Activate Customer Display</button>
@@ -84,6 +85,13 @@
                     }
                    
                 })
+                function cbIsAdmin(){
+                    if($('#cb_isadmin').is(":checked")){
+                        $('#isadmin').val(1);
+                    } else {
+                        $('#isadmin').val(0);
+                    }
+                }
             })
         </script>
         

@@ -614,8 +614,18 @@ app.post('/login', (req, res)=>{
       } else {
         // if result is not null, then user exist and password match
         if(row){
+          config = require('./config.json');
+          config.user = data.userid;
+          config.cabang = row.branchCode;
+          const fs = require('fs');
+          const videos = [];
+          const videoDir = './public/videos';
+          fs.readdirSync(videoDir).forEach(file => {  
+            videos.push('/public/videos/' + file);
+          })
+          console.log("Action : ", data.action)
           // check the action, if user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
-          if(row.action == 'user'){
+          if(data.action == 'user'){
             // render cs.ejs with data from ticket table that match the userid and today
             let today = new Date().toISOString().slice(0, 10);
             const sql = "SELECT * FROM transaksi WHERE user_id = ? and strftime('%Y-%m-%d', print_time) = ?";
@@ -628,7 +638,8 @@ app.post('/login', (req, res)=>{
             })
           } else {
             // render queue with parameters of user and cabang
-            res.render('queue', {user: row.ID, cabang: row.branchCode});
+
+            res.render('queue', {videos: videos, config: config});
           }
         } else {
           res.render('login', {error: 'User ID atau Password salah'});

@@ -626,6 +626,7 @@ app.post('/login', (req, res)=>{
           console.log("Action : ", data.action)
           // check the action, if user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
           if(data.action == 'user'){
+            console.log('User LOGIN', config);
             // render cs.ejs with data from ticket table that match the userid and today
             let today = new Date().toISOString().slice(0, 10);
             const sql = "SELECT * FROM transaksi WHERE user_id = ? and strftime('%Y-%m-%d', print_time) = ?";
@@ -638,7 +639,7 @@ app.post('/login', (req, res)=>{
             })
           } else {
             // render queue with parameters of user and cabang
-
+            console.log('Queue LOGIN', config);
             res.render('queue', {videos: videos, config: config});
           }
         } else {

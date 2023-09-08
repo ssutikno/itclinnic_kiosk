@@ -605,7 +605,7 @@ app.post('/login', (req, res)=>{
   const data = req.body;
   console.log('LOGIN : ',data);
   // if data.isadmin != 1, then check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
-  if(data.isadmin != 1){
+  if(data.isadmin == 0){
     // check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
     // check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
     db.get("SELECT * FROM user WHERE ID=? and password=?",[data.userid, data.password], (err, row)=>{

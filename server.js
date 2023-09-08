@@ -603,7 +603,7 @@ app.get('/login',(req,res)=>{
 app.post('/login', (req, res)=>{
  // check the user and password, if match, set logged_in to 1 and last_login to now
   const data = req.body;
-  console.log(data);
+  console.log('LOGIN : ',data);
   // if data.isadmin != 1, then check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
   if(data.isadmin != 1){
     // check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang

@@ -48,11 +48,11 @@
                     </section>
                     <section class="mb-3 form-check">
                         <input type="number" name="isadmin" id="isadmin" value="0" hidden>
-                        <input type="checkbox" id="cb_isadmin" class="form-check-input" onclick="cbIsAdmin()">
+                        <input type="checkbox" id="cb_isadmin" class="form-check-input">
                         <label for="cb_isadmin" class="form-check-label">Administrator</label>
                     </section>
-                    <button class="btn btn-primary" type="submit" name="action" value="user">Sign in</button>
-                    <button class="btn btn-secondary" type="submit" name="äction" value="signage">Activate Customer Display</button>
+                    <button class="btn btn-primary" type="submit" name="action" value="user" id="login">Sign in</button>
+                    <button class="btn btn-secondary" type="submit" name="äction" value="signage" id="queue">Activate Customer Display</button>
                 </form>
             </div>
             
@@ -66,32 +66,73 @@
         </div>
         <script>
             $(()=>{
-                $("login").click(()=>{
+                // remove all localStroage
+                localStorage.clear();                
+
+                $("#cb_isadmin").click(()=>{
+                    if($('#cb_isadmin').is(":checked")){
+                        $('#isadmin').val(1);
+                        $('#queue').prop('disabled', true);
+                        // alert($('#isadmin').val());
+                    } else {
+                        $('#isadmin').val(0);
+                        $('#queue').prop('disabled', false);
+                    }
+                }	)
+
+                $("#login").click(()=>{
+                    // prevent default
+                    event.preventDefault();
                     // if isadmin is checked, then go admin page with parameters. else go to cs page with parameters
-                    if ($("#isadmin").is(":checked")) {
-                        console.log($("#username").val());
+
+                    if ($("#cb_isadmin").is(":checked")) {
+                        console.log('ADMIN : ', $("#username").val());
                         // ajax post call to /admin with parameters userid and password
                         $.post("/admin", {userid: $("#username").val(), password: $("#current-password").val()}, (data, status)=>{
-                            console.log(data);
+                            // console.log(data);
+                            // alert(data);
                             if (data == "error") {
                                 $("#error").html("Invalid username or password");
                             } else {
-                                window.location.replace("/admin?userid=" + $("#username").val() + "&password=" + $("#current-password").val());
+                                alert("GOTO Admin Page");
+                                window.location.replace("/admin");
                             }
                         })
 
                     } else {
-                        window.location.replace("/cs?userid=" + $("#username").val() + "&password=" + $("#current-password").val());
+                        // add last_login and userid to localStroage
+                        $.post("/login",{userid: $("#username").val(), password: $("#current-password").val(), isadmin: $("#isadmin").val(), action:'user'}, (data, status)=>{
+                            // console.log(data);
+                            //  if the status is OK, then go to cs page; else, show error message
+                            // alert(status);
+                            if (status != "success") {
+                                $("#error").html("Invalid username or password");
+                            } else {
+                                alert("GOTO CS Page");
+                                // redirecto to cs page
+                                window.location.replace("/cs");
+                            }   
+                        })
                     }
-                   
                 })
-                function cbIsAdmin(){
-                    if($('#cb_isadmin').is(":checked")){
-                        $('#isadmin').val(1);
-                    } else {
-                        $('#isadmin').val(0);
-                    }
-                }
+                $("#queue").click(()=>{
+                    // prevent default
+                    event.preventDefault();
+                    // ajax post call to /queue with parameters userid and password
+                    $.post("/queue", {userid: $("#username").val(), password: $("#current-password").val()}, (data, status)=>{
+                        console.log(data.row.branchCode);
+                        alert(data.row);
+                        if (data == "error") {
+                            $("#error").html("Invalid username or password");
+                        } else {
+                            console.log(data.row);
+                            window.location.replace("/queue1"+ "?userid=" + $("#username").val() + "&cabang=" + data.row.branchCode);
+                        }
+                    })
+
+                    // 
+
+                })
             })
         </script>
         

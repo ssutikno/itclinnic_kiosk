@@ -1,0 +1,252 @@
+body,html {
+    margin: 0;
+    padding: 0;
+}
+body::-webkit-scrollbar{
+    display: none;
+}
+
+
+.icon-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.icon-container img {
+    width: 100px; /* Adjust the percentage as needed */
+    max-width: 100px; /* Add a maximum width for larger screens */
+    height: auto;
+    margin: 10px; /* Adjust the spacing between icons */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.icon-container img:hover {
+    transform: scale(1.2); /* Adjust the hover scaling effect */
+}
+
+.icon-text {
+    text-align: center;
+    font-size: 16px; /* Adjust the font size as needed */
+}
+
+.custom-dialog {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(172, 73, 230, 0.6);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    z-index: 999;
+}
+
+.centered-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+#survey {
+    z-index: 300;
+    position: absolute;
+    /* centered on the screen vertical and horizontally */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color : yellow;
+    width: 90%;
+    height: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    /* z-index: 999; */
+    /* text size 100px */
+    font-size: 100px;
+}
+.btn {
+    text-transform: uppercase;
+    font-size: 3rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 25px;
+    width: 100%;
+}
+
+.welcome {
+    /* position on the center horizontal */
+    align-items: center;
+    width: 100vw;
+    position:absolute;
+    z-index: 1;
+    /* margin-top:5%;
+    margin-bottom: 10%; */
+    /* font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; */
+    display: block;
+    text-shadow: 5px 5px 5px gray;
+    padding-top: 200px;
+    text-align: center;
+    font-size: 80px;
+    font-weight: 600;
+    text-decoration-style: solid;
+    color: rgb(255, 255, 255, 0.6) ;
+    box-shadow: 3px;
+}
+#videos {
+    z-index:0;
+    display: block;
+    position : absolute;
+    top : 0;
+    left : 0;
+}
+/* video style, full screen and aspect ratio of 16:9, z-index=0 */
+#video {
+    width: 100vw;
+    height: auto;
+}
+
+.row {
+    padding: 0px;
+    margin:0px;
+}
+.containter{
+    padding: 0px;
+    margin:0px;
+}
+.logo{
+    z-index: 102;
+    position:absolute;
+    top : 50px;
+    left: 50px;
+    
+}   
+
+.logo img{
+    width: 300px;
+    /* box-shadow: 5px 5px 5px white; */
+}     
+
+#btn_survey{
+/* make circle button */
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    /* red color of the background and 50% transparent */
+
+    background-color: rgba(255, 0, 0, 0.5);
+
+    position : absolute;
+    display: block;
+    /* text on center white color */
+    color: white;
+    font-size: 50px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 200px;
+    /* position on the top right of the screen around 30 px from the edge */
+    top : 30px;
+    right: 30px;
+    /* shadow */
+
+
+}
+
+.marquee {
+    width: 100%; 
+    /* the plugin works for responsive layouts so width is not necessary */ 
+    overflow: hidden;
+    /* border:1px solid #ccc; */
+    z-index: 100;
+    position: absolute;
+    background-color: red;
+    color: white;
+    height: 90px;
+    bottom: 0px;
+    }
+.marquee p{
+    font-weight: bold;
+    font-size: 75px;
+    margin-top: -20px;
+}
+
+#clock {
+    position: absolute;
+    z-index: 101;
+    bottom: 0;
+    left: 0;
+    height:90px;
+    width: 260px;
+    background-color: blueviolet;
+    color: white;
+    border:0px;
+    border-right: 10px;
+    border-color: black;
+    border-style: solid;
+}
+#clock p{
+    font-weight: bold;
+    font-size: 75px;
+    margin-top: -20px;
+    margin-left: 20px;
+}
+.touch_text{
+    position:absolute;
+    text-align: center;
+    width: 100%;
+    bottom:100px;
+    font-size: 80px;
+    color: rgba(255,255,255, 0.6);
+    text-shadow: 5px 5px 5px gray;
+    font-weight: 800;
+    z-index: 1;
+}
+.blink {
+    -webkit-animation: blink-animation 1s steps(5, start) infinite;
+    animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+
+@-webkit-keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+.soft-blink {
+    animation: soft-blink-animation 1s linear infinite;
+}
+
+@keyframes soft-blink-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+#layer {
+    /* width = screen width, height = screen height, transparet 100%, z-index=200 */
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(171, 126, 126, 0.1);
+    position: absolute;
+    display:block;
+    top:0;
+    left:0;
+    z-index: 200;
+    /* display: none; */
+
+}

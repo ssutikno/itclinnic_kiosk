@@ -1,49 +1,29 @@
+<!-- make html that have 4 smiley icons with text below. The icons are show horizontally, 
+    the size of the icons are divided from the screen size.
+    The text below the icons are also divided from the screen size.
+    The icons and text are clickable and has hover effect.
+    The icons and text are centered horizontally and vertically.
+
+    the icons are from /public/imgs/smileys/ folder
+
+    the text below the icons are:
+        Sangat Puas
+        Puas
+        Tidak Puas
+        Sangat Tidak Puas
+
+    the text below the icons are in the same order as the icons.
+
+-->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Marquee3000 Example</title>
-    <script src="jquery/dist/jquery.min.js"></script>
-    <script src="jquery.marquee/jquery.marquee.min.js"></script>
-    <style>
-        .marquee {
-            width: 300px; /* the plugin works for responsive layouts so width is not necessary */
-            overflow: hidden;
-            border:1px solid #ccc;
-            }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-    <div class='marquee' data-duration='10000' data-gap='10' data-duplicated='true' style="width:100%" style="font-size: 30px;">
-        <span style="font-size: 30px;">
-            1. Lorem ipsum dolor sit amet, consectetur adipiscing elit END .
-        </span>
-        <span style="font-size: 30px;">
-            2. Lorem ipsum dolor sit amet, consectetur adipiscing elit END .
-        </span>
-        <span style="font-size: 30px;"> 
-            3. Lorem ipsum dolor sit amet, consectetur adipiscing elit END .
-        </span>
-        <span style="font-size: 30px;">
-            4. Lorem ipsum dolor sit amet, consectetur adipiscing elit END .
-        </span>
-    </div>
-
-    <script>
-        // var $ = require("jquery");
-        // require("jquery.marquee");
-
-        $('.marquee').marquee({
-            //duration in milliseconds of the marquee
-            duration: 15000,
-            //gap in pixels between the tickers
-            gap: 50,
-            //time in milliseconds before the marquee will start animating
-            delayBeforeStart: 0,
-            //'left' or 'right'
-            direction: 'left',
-            //true or false - should the marquee be duplicated to show an effect of continues flow
-            duplicated: true
-        });
-    </script>
+    
+    
 </body>
 </html>

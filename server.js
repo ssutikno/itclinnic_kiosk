@@ -2,12 +2,17 @@ const express = require('express');
 const multer = require('multer');
 const https = require('https');
 
+const cookieParser = require('cookie-parser');
 
-const fs = require('fs');
-const dbsqlite = require('./routes/db');
-const path = require('path');
+const {configureSession} = require('./libs/session');
 
 const app = express();
+
+const fs = require('fs');
+const dbsqlite = require('./libs/db');
+const path = require('path');
+
+
 const options = {
   key: fs.readFileSync('security/server.key'),
   cert: fs.readFileSync('security/server.cert')
@@ -19,6 +24,8 @@ const server = https.createServer(options, app);
 
 const PORT = process.env.PORT || 3000;
 
+const SECRET_KEY= "TICKETING";
+
 app.set('view engine', 'ejs');
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
@@ -29,6 +36,20 @@ app.use/'/', express.static(path.join(__dirname, 'node_modules/admin-lte/dist/')
 
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
+
+app.use(cookieParser());
+
+app.use(configureSession(
+  {
+    secret: 'my-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    // set session expired in 10 hours
+    cookie: { maxAge: 10 * 60 * 60 * 1000 }
+  }
+));
+
 // app.use(fileUpload());
 
 const db = dbsqlite.createDbConnection();
@@ -93,6 +114,25 @@ function createDatabase(){
   createTableTransaksi();
 }
 
+function isLoggedIn(req, res, next){
+  // check if user is logged in by checking the session
+  // if logged in, then next()
+  // if not logged in, then redirect to login page
+  if(req.session.logged_in){
+    next();
+  } else {
+    console.log('LOGIN Check : ',req.session)
+    res.redirect('/login');
+  }
+}
+
+function isAdmin(req, res, next){
+  if(req.session.isAdmin){
+    next();
+  } else {
+    res.redirect('/login');
+  } 
+}
 
 function findUser(userId, array){
     var result ={}
@@ -107,7 +147,7 @@ function findUser(userId, array){
     return result
 }
 
-app.get('/user', (req, res)=>{
+app.get('/user', isLoggedIn, (req, res)=>{
   let userid = req.query.userid;
   // console.log(isLoggedIn('931'));
   db.all("SELECT * from user", (err, rows)=>{
@@ -316,13 +356,13 @@ app.get('/newtix', (req, res)=>{
 })
 
 // skip route
-app.get('/skip', (req, res)=>{
+app.get('/skip', isLoggedIn, (req, res)=>{
   const cabang = req.query.cabang;
   const user = req.query.user;
   const nomor_tix = req.query.nomor_tix;
   const today = new Date().toISOString().slice(0, 10);
   console.log(cabang, user, nomor_tix);
-  db.run("UPDATE transaksi SET end_time = datetime('now'), survey_level='0' WHERE user_id = ? and tix_number=? and cabang=? ", [user, nomor_tix, cabang], (err,rows)=>{
+  db.run("UPDATE transaksi SET end_time = datetime('now'), survey_level='0' WHERE user_id = ? and tix_number=? and cabang=? and strftime('%Y-%m-%d', print_time) = ? ", [user, nomor_tix, cabang, today], (err,rows)=>{
     if(err){
       console.log(err.message);
       res.send({'ERROR':err.message})
@@ -334,13 +374,16 @@ app.get('/skip', (req, res)=>{
 })
 
 // selesai route
-app.get('/selesai', (req, res)=>{
+app.get('/selesai', isLoggedIn, (req, res)=>{
   const cabang = req.query.cabang;
   const user = req.query.user;
   const nomor_tix = req.query.nomor_tix;
   const today = new Date().toISOString().slice(0, 10);
   console.log(cabang, user, nomor_tix);
-  db.run("UPDATE transaksi SET end_time = datetime('now') WHERE user_id = ? and tix_number=? and cabang=? ", [user, nomor_tix, cabang], (err,rows)=>{
+  // make sql stateme to update transaksi table. set end_time to now where user_id = user, date(print_time) = today and  tix_number = nomor_tix, and cabang = cabang  
+  const sql = "UPDATE transaksi SET end_time = datetime('now') WHERE user_id = ? and tix_number=? and cabang=? and strftime('%Y-%m-%d', print_time) = ? ";
+  db.run(sql, [user, nomor_tix, cabang, today], (err,rows)=>{
+
     if(err){
       console.log(err.message);
       res.send({'ERROR':err.message})
@@ -351,60 +394,13 @@ app.get('/selesai', (req, res)=>{
   })
 })
 
-app.get('/cs', (req, res)=>{
-  
-  const cabang = req.query.cabang;
-  const user = req.query.user;
-  const today = new Date().toISOString().slice(0, 10);
-
-  // if no parameter, then show the login page
-
-  if(!cabang || !user){
-    res.render('login', {error: ''});
-  }
-  else {
-    // check if user is not logged_in, then show the login page. else show the cs page
-    db.get("SELECT * FROM user WHERE ID=?",[user], (err, row)=>{
-      // if result is null, then user not exist, show login page
-      console.log(row);
-      if(!row){
-        res.render('login', {error: 'Silahkan login terlebih dahulu'});
-      } else {
-        if(err){
-          res.render(err.message);
-        } else {
-
-          if(row.logged_in == 0){
-            res.render('login', {error: 'Anda belum login'});
-          } else {
-            // get all rows from transaksi where cabang=cabang, user = user and print_time = today, then send it to cs.ejs
-            db.all("SELECT * FROM transaksi WHERE cabang = ? and user_id = ? and strftime('%Y-%m-%d', print_time) = ? and end_time = NULL", [cabang, user, today], (err,rows)=>{
-              
-              if(err){
-                res.send(err.message)
-              } else {
-                console.log('ROW : ',rows);
-
-                res.render('cs', {user, cabang, rows})
-              }
-            })
-            res.render('cs', {user: row.ID, cabang: row.branchCode, row : row});
-          }
-        }
-      }
-
-      
-    })
-  }
-    
-})
-
-app.get('/panggil', (req,res)=>{
+app.get('/panggil', isLoggedIn, (req,res)=>{
   const user = req.query.user;
   const cabang = req.query.cabang;
   const nomor_tix = req.query.nomor_tix
+  const today = new Date().toISOString().slice(0, 10);
   console.log(cabang, nomor_tix, user)
-  db.run("UPDATE transaksi SET start_time = datetime('now'), user_id = ?  WHERE tix_number=? and cabang=? ", [user, nomor_tix, cabang], (err,rows)=>{
+  db.run("UPDATE transaksi SET start_time = datetime('now'), user_id = ?  WHERE tix_number=? and cabang=? and strftime('%Y-%m-%d', print_time) = ?", [user, nomor_tix, cabang, today], (err,rows)=>{
     if(err){
       console.log(err.message);
       res.send({'ERROR':err.message})
@@ -413,6 +409,36 @@ app.get('/panggil', (req,res)=>{
       res.send({'status':'OK'});
     }
   })
+})
+
+app.get('/cs', isLoggedIn, (req, res)=>{
+  
+  // get variables from session
+  const user = req.session.user;
+  const cabang = req.session.cabang;
+  const today = new Date().toISOString().slice(0, 10);
+
+  console.log('CS User Login : ', user, cabang, today);
+
+  // create sql statement to select all rows from transaksi where cabang=cabang, user = user, print_time = today, and end_time is null
+  const sql = "SELECT * FROM transaksi WHERE cabang = ? and user_id = ? and strftime('%Y-%m-%d', print_time) = ? and end_time IS NULL";
+
+  // execute sql statement
+  db.all(sql, [cabang, user, today], (err,rows)=>{
+
+    if(err){
+      res.send(err.message)
+    } else {
+      console.log('ROW : ',rows);
+
+      res.render('cs', {user, cabang, rows})
+    }
+  })
+  // res.render('cs', {user: row.ID, cabang: row.branchCode, row : rows}); 
+})
+
+app.post('/survey', isLoggedIn, (req, res)=>{
+
 })
 
 app.get('/reportcabang', (req, res)=>{
@@ -458,19 +484,40 @@ app.get('/demo', (req,res)=>{
     res.render('demo');
 })
 
+app.get('/queue1', isLoggedIn, (req,res)=>{
+  const cabang = req.query.cabang;
+  const user = req.query.userid;
+  const queueState = req.session.queueState;
+  if(!queueState){
+    let queueState = 'start';
+    req.session.queueState = queueState;
+    console.log('Queue State : ', queueState)
+  }
+
+  const fs = require('fs');
+  const videos = [];
+  const videoDir = './public/videos';
+  fs.readdirSync(videoDir).forEach(file => {  
+    videos.push('/public/videos/' + file);
+  })
+
+  data = {user: user, cabang: cabang, queueState : queueState, videos : videos};
+  console.log('Data : ', data	)
+  res.render('queue1', data);
+})
+
 // call the queue kiosk
-app.get('/queue', (req,res)=>{
+app.get('/queue', isLoggedIn, (req,res)=>{
   // call it by /queue?cabang=kode&user=userid
   // get filenames from folder ./public/videos include the relative path into videos array and render to queue.ejs
   const cabang = req.query.cabang;
-  const user = req.query.user;
-  
+  const user = req.query.userid;
+  console.log('Queue : ', cabang, user)
   // if no parameter, show home screen, then exit function
   if(!cabang || !user){
     res.render('home');
     return;
   }
-
 
   // console.log(cabang);
   const fs = require('fs');
@@ -485,80 +532,66 @@ app.get('/queue', (req,res)=>{
 // add cabang and user to config
   config.cabang = cabang;
   config.user = user;
-  
+  // req.session.isLoggedIn = true;
   console.log(config);
   res.render('queue', {videos: videos, config: config });
 })
 
-app.get('/admin', (req,res)=>{
+app.post('/queue', (req,res)=>{
+  req.session.logged_in = false;
+  // parameters userid and password. if it is match with user database, send the status OK, otherwise send the status ERROR
+  const userid = req.body.userid;
+  const password = req.body.password;
+  const config = require('./config.json');
+  console.log(userid, password);
+
+  db.get('SELECT * FROM user WHERE ID=? and password=?',[userid, password], (err, row)=>{
+    console.log(row);
+    if(err){
+      res.send(err.message);
+    } else {
+      if(row){
+        // send status OK and send the row data as json
+        req.session.logged_in = true;
+        res.send({'status':'OK', 'row':row});
+      } else {
+        res.send('ERROR');
+      }
+    }
+  })
+})
+
+app.get('/admin', isAdmin, (req,res)=>{
   // get userid and password from query string, compare to config.admin.userid and config.admin.password
   // if match, then render admin.ejs, else render login.ejs with error message
-  const userid = req.query.userid;
-  const password = req.query.password;
-  const config = require('./config.json');
-  if(userid == config.admin.userid && password == config.admin.password){
+  // const userid = req.query.userid;
+  // const password = req.query.password;
+  // const config = require('./config.json');
+  // // console.log('Admin : ', req.session.isAdmin  );
+  console.log(res.data);
+  if(req.session.isAdmin){
     res.render('admin');
   } else {
     res.render('login', {error: 'User ID atau Password salah'});
   }
 });
 
-app.post('/admin', (req,res)=>{
+app.post('/admin', isAdmin, (req,res)=>{
   // get parameters from query string
   const userid = req.body.userid;
   const password = req.body.password;
   const config = require('./config.json');
-  console.log(userid, password);
+  console.log('Admin is logged in: ', userid, password);
   if(userid == config.admin.userid && password == config.admin.password){
-    res.render('admin');
+    req.session.isAdmin = true;
+    res.send('success');
   } else {
-    res.render('login', {error: 'User ID atau Password salah'});
+    res.send('error');
   } 
-
 })
-app.get('/import', (req,res)=>{
+
+app.get('/import', isAdmin, (req,res)=>{
    res.render('import');
-})
-
-app.post('/import/cabang', (req, res)=>{
-  const csvData = req.file.buffer.toString('utf-8');
-  const rows = csvData.split('\n').slice(1); // exclude the header
-  const status = 'CSV data CABANG imported successfully'
-
-  rows.forEach(row => {
-    const columns = row.split(',');
-    const query = 'INSERT INTO cabang (id,nama, kota) values (?,?,?)';
-    const values = [columns[0], columns[1], columns[2]];
-
-    db.run(query, values, error => {
-      if(error){
-        status = 'CSV data CABANG imported with error ' + error
-      }
-    })
-  })
-  
-  res.render('import', {status});
-})
-
-app.post('/import/user', (req, res)=>{
-  const csvData = req.file.buffer.toString('utf-8');
-  const rows = csvData.split('\n').split(1); // exclude the header
-  const status = 'CSV data USER imported successfully'
-
-  rows.forEach(row => {
-    const columns = row.split(',');
-    const query = 'INSERT INTO cabang(id, nama, kota) values (?,?,?)';
-    const values = [columns[0], columns[1], columns[2]];
-
-    db.run(query.values, error => {
-      if(error) {
-        status = "CSV data USER imported with ERROR " + error
-      }
-    })
-
-  })
-
-  res.render('import', {status});
 })
 
 app.get('/update', (req,res)=>{
@@ -577,22 +610,22 @@ app.get('/update', (req,res)=>{
 
 // check the login state of the user. if last_login = today, then return true, else return false
 
-function isLoggedIn(userid){
-  const today = new Date().toISOString().slice(0, 10);
-  db.get("SELECT * FROM user WHERE ID=?",[userid], (err, row)=>{
-    if(err){
-      console.log(err.message);
-      return false;
-    } else {
-      if(row.last_login == today){
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-  )
-}
+// function isLoggedIn(userid){
+//   const today = new Date().toISOString().slice(0, 10);
+//   db.get("SELECT * FROM user WHERE ID=?",[userid], (err, row)=>{
+//     if(err){
+//       console.log(err.message);
+//       return false;
+//     } else {
+//       if(row.last_login == today){
+//         return true;
+//       } else {
+//         return false;
+//       }
+//     }
+//   }
+//   )
+// }
 
 
 app.get('/login',(req,res)=>{
@@ -606,6 +639,7 @@ app.post('/login', (req, res)=>{
   console.log('LOGIN : ',data);
   // if data.isadmin != 1, then check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
   if(data.isadmin == 0){
+    console.log('Is NOT ADMIN');
     // check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
     // check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
     db.get("SELECT * FROM user WHERE ID=? and password=?",[data.userid, data.password], (err, row)=>{
@@ -634,7 +668,14 @@ app.post('/login', (req, res)=>{
               if(err){
                 res.send(err.message)
               } else {
-                res.render('cs', {user: config.user, cabang: config.cabang, rows : rows});
+                // send user are set to logged_in = 1 and last_login = now, and save it to the session, then send the status OK
+                req.session.logged_in = true;
+                req.session.user = data.userid;
+                req.session.cabang = row.branchCode;
+                console.log('Session : ', req.session);
+                // res.send({'status':'OK'});
+                res.redirect('/cs');
+                // res.render('cs', {user: config.user, cabang: config.cabang, rows : rows});
               }
             })
           } else {
@@ -652,9 +693,12 @@ app.post('/login', (req, res)=>{
   } else {
     // check the admin user and password. if match, then check the user and password from config.admin. otherwise, check the user and password from table user, if match, check the action = user, then render cs.ejs with data from ticket table that match the userid and today. otherwise render queue with parameters of user and cabang
     const config = require('./config.json');
+    console.log('Is ADMIN', config.admin.userid, config.admin.password);
     if(data.userid == config.admin.userid && data.password == config.admin.password){
       // render admin.ejs
-      res.render('admin');
+      req.session.isAdmin = true;
+      console.log('Session ADMIN : ', req.session	)
+      res.redirect('admin');
     } else {
       res.render('login', {error: 'User ID atau Password salah'});
     }
@@ -662,21 +706,38 @@ app.post('/login', (req, res)=>{
 })
 
 
-    
-
 // logout user, set logged_in to 0 and last_login to current time
 app.get('/logout', (req, res)=>{
   const userid = req.query.userid;
-  db.run("UPDATE user SET logged_in=0, last_login=datetime('now') WHERE ID=?",[userid], (err)=>{
-    if(err){
-      res.render(err.message);
-    } else {
-      res.render('login');
-    }
-  })
+  req.session.logged_in = false;
+  req.session.isAdmin = false;
+  req.session.queueState = '';
+  res.redirect('/login');
 }
 )
 
+app.get('/security', (req, res)=>{
+  // set the html headers with key=login_state = 1
+  res.setHeader('login_state', '1');
+  res.render('security');
+})
+
+app.post('/postman',  isLoggedIn, (req, res)=>{
+  // get the html headers
+  console.log('POST Headers : ',req.headers);
+  // get the authorization header
+  console.log('Authorization : ', req.headers.authorization);
+  res.send(req.headers)
+
+})
+
+app.get('/postman', isLoggedIn, (req, res)=>{
+  // get the html headers
+  console.log('GET Headers : ',req.headers);
+  // get the authorization header
+  console.log('Authorization : ', req.headers.authorization);
+  res.send(req.headers)
+})
 
 // show reports
 

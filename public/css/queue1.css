@@ -1,0 +1,62 @@
+/* make div template for display 4 smileys icons horizontally on the center of the screen */
+.center{
+    margin: auto;
+    width : 80%;
+    border: 3px solid green;
+    padding: 10px;
+    height : 50%;
+    position: relative ;
+}
+
+.smileys{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* childrens places horizontally */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: lightblue;
+    border-radius: 30px;
+}
+
+img {
+    margin: 30px;
+    padding: 30px;
+    width: 250px; /* Adjust the percentage as needed */
+    /* max-width: 250px; Add a maximum width for larger screens */
+    height: auto;
+    margin: 10px; /* Adjust the spacing between icons */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+img:active{
+    transform: scale(1.2); /* Adjust the hover scaling effect */
+    
+}
+
+.container-fluid img:hover {
+    transform: scale(1.2); /* Adjust the hover scaling effect */
+}
+
+.container-fluid p {
+    text-align: center;
+    font-size: 16px; /* Adjust the font size as needed */
+}
+
+.container {
+    background-color: lightblue;
+    border-radius: 30px;
+}
+
+.smileys p{
+    text-align: center;
+    font-size: 26px; /* Adjust the font size as needed */
+    color:  white;
+    font-weight: bolder;
+    margin : auto;
+    margin-bottom: 30px;
+    text-shadow: 3px 3px 3px #000000;
+}

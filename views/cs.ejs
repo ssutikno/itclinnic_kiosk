@@ -81,11 +81,16 @@
 
         // when document ready hide btn skip & selesai
         $(document).ready(function () {
+
             $("#btn_skip").hide();
             $("#btn_selesai").hide();
-            const user = "<%= user %>";
-            const cabang = "<%= cabang %>";
+
+            //  load variables from localstorage
+            const user = $('#user').html();
+            const cabang = $('#cabang').html();
             
+            console.log('User ',user, 'Cabang ',cabang)
+                        
             // btn_panggil on 
             $("#btn_panggil").click(function (e) { 
                 e.preventDefault();

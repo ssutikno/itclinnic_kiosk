@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- use bootstrap 5 and jquery -->
+    <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/jquery/dist/jquery.min.js"></script>
+    <script src="/jquery.marquee/jquery.marquee.min.js"></script>
+    <!-- use customer css -->
+    <link rel="stylesheet" href="/public/css/queue1.css">
+    <!-- <script src="/public/js/queue.js"></script> -->
+
+    <title>Customer Display</title>
+</head>
+<body>
+
+    <div id="videos" >
+        <video id="video" autoplay controls muted class="position-absolute top-0 start-0">
+            <% for(var i=0; i<videos.length; i++) { %>
+                <source src="<%= videos[i] %>" type="video/mp4">
+            <% } %>
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="scrolling_text marquee">
+        <p>Scrolling Text</p>
+    </div>
+    <div id="clock"><p id="clock_text">10:10</p></div>
+
+    <% if (queueState="") { %>
+    <div class="container">
+        <div class="smileys">
+            <div class="col-3">
+                <img src="/public/imgs/smileys/Sangat Puas.png" alt="Sangat Puas">
+                <p class="icon-text">Sangat Puas</p>
+            </div>
+            <div class="col-3">
+                <img src="/public/imgs/smileys/Puas.png" alt="Puas">
+                <p class="icon-text">Puas</p>
+            </div>
+            <div class="col-3">
+                <img src="/public/imgs/smileys/Tidak Puas.png" alt="Tidak Puas">
+                <p class="icon-text">Tidak Puas</p>
+            </div>
+            <div class="col-3">
+                <img src="/public/imgs/smileys/Sangat Tidak Puas.png" alt="Sangat Tidak Puas">
+                <p class="icon-text">Sangat Tidak Puas</p>
+            </div>
+        </div>
+    </div>
+    <% } %>
+    
+</body>
+</html>
